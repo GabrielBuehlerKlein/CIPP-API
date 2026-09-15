@@ -6,8 +6,8 @@ on:
       - master
   workflow_dispatch:
 
-env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
+permissions:
+  contents: read
 
 jobs:
   deploy:
@@ -17,11 +17,15 @@ jobs:
       - name: Checkout GitHub Action
         uses: actions/checkout@v4
 
+      - name: Build CIPP API modules
+        shell: pwsh
+        run: ./Tools/Build-DevApiModules.ps1
+
       - name: Deploy CIPP API to Azure Function App
         uses: Azure/functions-action@v1
         id: fa
         with:
           app-name: 'cippjntam'
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          package: '.'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CIPPJNTAM }}
           sku: 'flexconsumption'
