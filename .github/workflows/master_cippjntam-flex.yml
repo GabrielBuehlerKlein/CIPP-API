@@ -1,0 +1,31 @@
+﻿name: Build and deploy Powershell project to Azure Function App - cippjntam-flex
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout GitHub Action
+        uses: actions/checkout@v5
+
+      - name: Build CIPP API modules
+        shell: pwsh
+        run: ./Tools/Build-DevApiModules.ps1
+
+      - name: Deploy CIPP API to Azure Function App
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'cippjntam-flex'
+          package: '.'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CIPPJNTAMFLEX }}
+          sku: flexconsumption
