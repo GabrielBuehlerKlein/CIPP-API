@@ -1,0 +1,36 @@
+﻿name: Build and deploy Powershell project to Azure Function App - cippjntam
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Ziel ist eine Windows Function App (reserved=false) und
+    # Build-DevApiModules.ps1 / profile.ps1 nutzen Windows-Pfade.
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout GitHub Action
+        uses: actions/checkout@v4
+
+      - name: Build CIPP API modules
+        shell: pwsh
+        run: ./Tools/Build-DevApiModules.ps1
+
+      - name: Deploy CIPP API to Azure Function App
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'cippjntam'
+          package: '.'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CIPPJNTAM }}
+          # KEIN remote-build: unvereinbar mit WEBSITE_RUN_FROM_PACKAGE=1.
+          # CIPP braucht ohnehin keinen Remote-Build: managedDependency ist in
+          # host.json deaktiviert, requirements.psd1 ist leer, alle Module
+          # liegen im Repo bzw. werden im Schritt oben gebaut.
