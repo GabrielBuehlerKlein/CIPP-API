@@ -28,5 +28,4 @@ jobs:
           app-name: 'cippjntam'
           package: '.'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CIPPJNTAM }}
-          sku: 'flexconsumption'
           remote-build: true
